@@ -9,14 +9,29 @@ import numpy as np
 def _neighbors(cell, size):
     x, y = cell
     candidates = ((x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1))
-    return [(nx, ny) for nx, ny in candidates if 0 <= nx < size and 0 <= ny < size]
+    neighbors = []
+    for nx, ny in candidates:
+        if 0 <= nx < size and 0 <= ny < size:
+            neighbors.append((nx, ny))
+    return neighbors
 
 
 def generate_with_dfs(size, start_pos, end_pos):
-    maze = [[0 for _ in range(size)] for _ in range(size)]
-    visited = [[False for _ in range(size)] for _ in range(size)]
+    maze = []
+    visited = []
+    for _ in range(size):
+        maze_row = []
+        visited_row = []
+        for _ in range(size):
+            maze_row.append(0)
+            visited_row.append(False)
+        maze.append(maze_row)
+        visited.append(visited_row)
 
-    cells = [(x, y) for x in range(size) for y in range(size)]
+    cells = []
+    for x in range(size):
+        for y in range(size):
+            cells.append((x, y))
     random.shuffle(cells)
 
     visited_count = 0
@@ -39,11 +54,11 @@ def generate_with_dfs(size, start_pos, end_pos):
             stack.append(root)
 
         current = stack[-1]
-        unvisited_neighbors = [
-            neighbor
-            for neighbor in _neighbors(current, size)
-            if not visited[neighbor[0]][neighbor[1]]
-        ]
+        unvisited_neighbors = []
+        neighbors = _neighbors(current, size)
+        for neighbor in neighbors:
+            if not visited[neighbor[0]][neighbor[1]]:
+                unvisited_neighbors.append(neighbor)
 
         if not unvisited_neighbors:
             stack.pop()
