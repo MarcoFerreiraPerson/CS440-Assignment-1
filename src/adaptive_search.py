@@ -100,9 +100,9 @@ def search(maze):
     cols = len(maze[0])
 
     h = [[0] * cols for _ in range(rows)]
-    for r in range(rows):
-        for c in range(cols):
-            h[r][c] = manhattan((r, c), goal)
+    for row in range(rows):
+        for col in range(cols):
+            h[row][col] = manhattan((row, col), goal)
 
     g_score = [[0] * cols for _ in range(rows)]
     parent = [[None] * cols for _ in range(rows)]
