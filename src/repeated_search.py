@@ -1,13 +1,12 @@
 
 import time
-
 from src.result import Result
 from src.utils import get_start_and_goal
 from src.utils import a_star, manhattan
 
 
-# Uses adaptive A* search to find a path from the start to the goal in the given maze.
-def search(maze):
+# Uses repeated A* search to find a path from start to goal in the given maze.
+def search(maze, start=None, goal=None, prefer_smaller_g_tie_break=False):
     if not maze or not maze[0]:
         return Result(
             maze=maze,
@@ -18,8 +17,13 @@ def search(maze):
         )
 
     start_time = time.perf_counter()
-    start, goal = get_start_and_goal(maze)
-    
+    maze_start, maze_goal = get_start_and_goal(maze)
+
+    if start is None:
+        start = maze_start
+    if goal is None:
+        goal = maze_goal
+
     if start is None or goal is None:
         return Result(
             maze=maze,
@@ -56,17 +60,13 @@ def search(maze):
             g_score,
             parent,
             closed,
+            prefer_smaller_g_tie_break=prefer_smaller_g_tie_break,
         )
 
         explored_nodes.extend(expanded)
         total_expanded += len(expanded)
         if planned_path is None:
             break
-
-        goal_score = g_score[goal[0]][goal[1]]
-        for cell in expanded:
-            row, col = cell
-            h[row][col] = goal_score - g_score[row][col]
 
         blocked_found = False
         for step in planned_path[1:]:
