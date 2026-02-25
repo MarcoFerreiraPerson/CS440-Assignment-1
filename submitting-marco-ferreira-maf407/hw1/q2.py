@@ -306,7 +306,7 @@ def main() -> None:
                 actual_maze=mazes[maze_id],
                 start=START_NODE,
                 goal=END_NODE,
-                tie_breaking=args.tie_braking
+                tie_breaking="max_g"
             )
             t1 = time.perf_counter()
 
@@ -324,7 +324,7 @@ def main() -> None:
                 actual_maze=mazes[maze_id],
                 start=START_NODE,
                 goal=END_NODE,
-                tie_breaking=args.tie_braking
+                tie_breaking="min_g"
             )
             t1 = time.perf_counter()
 
