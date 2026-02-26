@@ -1,0 +1,76 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+\usepackage{setspace}
+
+\title{CS 440 --- Assignment 1}
+\author{
+Marco Ferreira (\texttt{maf407}) \and
+Krish Patel (\texttt{kup11})
+}
+\date{\today}
+
+\setstretch{1.1}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.6em}
+
+\newcommand{\question}[1]{%
+\begin{quote}
+\textbf{Question.} #1
+\end{quote}
+}
+
+\newcommand{\answer}{\textbf{Answer.}\ }
+
+\begin{document}
+\maketitle
+
+\section*{Part 1 - Understanding the methods}
+\question{Read the chapter in your textbook on uninformed and informed (heuristic) search and then read the project description again. Make sure that you understand A* and the concepts of admissible and consistent h-values.}
+
+\subsection*{(a)}
+\question{Explain in your report why the first move of the agent for the example search problem from Figure 8 is to the east rather than the north given that the agent does not know initially which cells are blocked.}
+
+\answer Firstly, it is given that the agent does not know at first which cells are blocked. Thus the agent will assume that every cell is unblocked and traversable, unless it discovers otherwise. The agent will move to the cell with the smallest \(f\)-value, which is determined from \(f(s) = g(s) + h(s)\). \(g(s)\) will be equal for both a move north and east, but \(h(s)\) will be different. The value of \(h(s)\) will be smaller for moving east than moving north, as \(h(s) = 2\) for east and \(h(s) = 4\) for north using Manhattan distance as a heuristic, so the agent will move east.
+
+\subsection*{(b)}
+\question{This project argues that the agent is guaranteed to reach the target if it is not separated from it by blocked cells. Give a convincing argument that the agent in finite gridworlds indeed either reaches the target or discovers that this is impossible in finite time. Prove that the number of moves of the agent until it reaches the target or discovers that this is impossible is bounded from above by the number of unblocked cells squared.}
+
+\answer It is true that the agent in a finite gridworld reaches its target or discovers it to be impossible in a finite amount of time. The agent in a finite gridworld means that there are only a finite amount of cells within a gridworld. In addition, each of these cells are initially unblocked to the agent, until the agent traverses to a cell and discovers it to be blocked, which it then marks as blocked. As the agent traverses to unknown cells, and remembers what cells are blocked and non-traversable, there are only a finite amount of blocked cells and unblocked cells it can discover. Because of this, it cannot keep discovering new paths to traverse. Thus, the agent will eventually reach its target or determine it to be impossible, proving the statement.
+
+Let \(C\) represent the number of unblocked cells in the gridworld. The path from one unblocked cell to the proposed target is at most \(C\) because cells are not traversed twice in a given path. If the agent chooses to replan from that given cell, it can only replan \(C\) number of times maximum because it replans every time it discovers a blocked cell or cells in the way of the proposed path, and each replan will increase path length, which can only be less than \(C\) and cannot exceed it. Since there are \(C\) possible cells and you can replan at most \(C\) times due to path increase, the number of possible moves is at most \(C \times C = C^2\).
+
+\section*{Part 2 - The Effects of Ties }
+\question{Repeated Forward A* needs to break ties to decide which cell to expand next if several cells have the same smallest \(f\)-value. It can either break ties in favor of cells with smaller \(g\)-values or in favor of cells with larger \(g\)-values. Implement and compare both versions of Repeated Forward A* with respect to their runtime or, equivalently, number of expanded cells. Explain your observations in detail, that is, explain what you observed and give a reason for the observation.}
+
+\answer After running both versions of Repeated Forward A* across the mazes, one version that breaks ties in favor of smaller \(g\)-values, and the other version that breaks ties in favor of larger \(g\)-values, there were a few observations made that we deemed important. Taking the averages of the path length and nodes expanded for viable mazes, we get \(\sim 339\) path length and \(\sim 9376\) nodes expanded for the larger \(g\)-value version, and \(\sim 328\) path length and \(\sim 293723\) nodes expanded for the smaller \(g\)-value version. Clearly, the nodes expanded for the smaller \(g\)-value version of Repeated Forward A* is much greater than the larger \(g\)-value version, about 30 times more nodes expanded. This is because with smaller \(g\)-values, when there is a tie break, it will prefer to stay closer to the agent. This is opposite with the larger \(g\)-values, where if there is a tie break, it will prefer to go towards the target. Because of this, you will see many more node expansions with the smaller \(g\)-value version than the larger \(g\)-value version.
+
+\section*{Part 3 - Forward vs. Backward}
+\question{Implement and compare Repeated Forward A* and Repeated Backward A* with respect to their runtime or, equivalently, number of expanded cells. Explain your observations in detail, that is, explain what you observed and give a reason for the observation. Both versions of Repeated A* should break ties among cells with the same \(f\)-value in favor of cells with larger \(g\)-values and remaining ties in an identical way, for example randomly.}
+
+\answer From running both Repeated Forward A* and Repeated Backward A*, which both break ties with the same \(f\)-value in favor of larger \(g\)-values, there are a few notable observations. Taking the averages between all the viable mazes, we have \(\sim 341\) path length and \(\sim 151038\) nodes expanded for Repeated Backward A*, and \(\sim 340\) path length and \(\sim 8984\) nodes expanded for Repeated Forward A*. It is seen that Repeated Backward A* had almost 17 times more nodes expanded than Repeated Forward A*. The reasoning for this is because Repeated Backward A* only knows of blocked cells near the agent because the agent is actually who discovers blocked cells that are near it, but this is not useful for the target especially if the target and the agent are far away from each other. So then from the target, there needs to be more node expansions, and thus more time, in order to have better knowledge of blocked and unblocked cells and use that information correctly.
+
+\section*{Part 4 - Heuristics in the Adaptive A* }
+\question{The project argues that ``the Manhattan distances are consistent in gridworlds in which the agent can move only in the four main compass directions.'' Prove that this is indeed the case. Furthermore, it is argued that ``The h-values \(h_{\text{new}}(s)\) ... are not only admissible but also consistent.'' Prove that Adaptive A* leaves initially consistent h-values consistent even if action costs can increase.}
+
+\answer We need to prove that the Manhattan distances are consistent in gridworlds in which the agent can move only in the four main compass directions. To prove that this heuristic $h(s)$ is consistent, it is true if and only if $h(\text{target}) = 0$ and $h(s) \le c(s, s') + h(s')$. The Manhattan distance $h(s)$ where $s = \text{target}$ must be 0 because the absolute difference in both horizontal and vertical coordinates is 0 since both $x$ values and both $y$ values are respectively the same. Then since $s'$ is a neighboring state of $s$, and the agent can only move in four main compass directions, the only change in the Manhattan distance from $s$ to $s'$ is 1, since either the horizontal coordinate will change by 1 or the vertical coordinate will change by 1. So moving one step will change the Manhattan distance by at most one from the next state $s'$, so $h(s) \le 1 + h(s')$. Since $c(s, s') = 1$, meaning the cost from going to $s$ to $s'$ is 1, $h(s) \le c(s, s') + h(s')$ and so $h(s)$ and Manhattan distance is consistent.
+
+We also need to prove that Adaptive A* leaves initially consistent $h$-values consistent even if action costs can increase. Adaptive A* will update values through $h_{\text{new}}(s) = g(\text{target}) - g(s)$. Here, $g(\text{target})$ is the shortest path distance from the start to the target cell, and $g(s)$ is the shortest path distance from the start to the state $s$. Define the shortest path distance from state $s$ to target to be $gd(s)$. By triangle inequality, $g(\text{target}) \le g(s) + gd(s)$. Then $g(\text{target}) - g(s) \le gd(s)$, and $h_{\text{new}}(s) = g(\text{target}) - g(s)$, so then $h_{\text{new}}(s) \le gd(s)$, meaning that $h_{\text{new}}(s)$ is admissible. Then to prove consistency, we must show that $h_{\text{new}}(s) \le c(s, s') + h_{\text{new}}(s')$. Using our previous definition of $h_{\text{new}}(s)$, we can show that $g(\text{target}) - g(s) \le c(s, s') + g(\text{target}) - g(s')$, and this equals $g(s') \le c(s, s') + g(s)$ by rearranging. This statement is always true because you can reach $s'$ from the start if you go to a neighboring cell $s$ and take a step to $s'$, but the shortest path distance could still be less, and is bounded above by the previous statement. Then it is true that $h_{\text{new}}(s) \le c(s, s') + h_{\text{new}}(s')$. If action costs increase, this will only affect $c(s, s')$ which represents the action cost from $s$ to $s'$, so only the right side will increase, which will still keep the statement true, since $h_{\text{new}}(s)$ will still be less than or equal to that. Thus, the original statement is proven.
+
+\section*{Part 5 - Heuristics in the Adaptive A* }
+\question{Implement and compare Repeated Forward A* and Adaptive A* with respect to their runtime. Explain your observations in detail, that is, explain what you observed and give a reason for the observation. Both search algorithms should break ties among cells with the same \(f\)-value in favor of cells with larger \(g\)-values and remaining ties in an identical way, for example randomly.}
+
+\answer After running both Repeated Forward A* and Adaptive A*, breaking ties with the same \(f\)-value in favor of larger \(g\)-values, there are a few notable observations. After taking averages between the viable mazes, for Repeated Forward A* the path length is \(\sim 347\), the nodes expanded is \(\sim 9287\), and the runtime in milliseconds is \(\sim 42.6\text{ ms}\). For Adaptive A*, the path length is \(\sim 325\), the nodes expanded is \(\sim 8868\), and the runtime in milliseconds is \(\sim 42.0\text{ ms}\). We notice that runtime is close to the same, with Adaptive A* being very slightly faster than Repeated Forward A*, with less nodes expanded as well, as Repeated Forward A* has about 400 more nodes expanded than Adaptive A* on average. This is most likely because while Repeated Forward A* uses basic Manhattan distance as its heuristic, Adaptive A* is unique because its heuristic uses information from previous searches to find shortest paths without expanding states that have already been expanded before, making Adaptive A* slightly faster and with less node expansions, however we would need a larger sample size to be more conclusive.
+
+\section*{Part 6 - Statistical Significance }
+\question{Performance differences between two search algorithms can be systematic in nature or only due to sampling noise (= bias exhibited by the selected test cases since the number of test cases is always limited). One can use statistical hypothesis tests to determine whether they are systematic in nature. Read up on statistical hypothesis tests (for example, in Cohen, \emph{Empirical Methods for Artificial Intelligence}, MIT Press, 1995) and then describe for one of the experimental questions above exactly how a statistical hypothesis test could be performed. You do not need to implement anything for this question, you should only precisely describe how such a test could be performed.}
+
+\answer For question 3, our hypothesis would be: Is Forward A* better algorithm than Backward A* in terms of expanded cells? To do this we would first go through each maze and count the number of times Forward won by having less expanded cells than Backwards A*, we can call this \(k\) and the total number of mazes processed \(n\). We can determine if Forward A* is better by finding the \(p\) value with Binomial distribution. If the \(p\) value is strictly greater than 0.5 by a significant amount than we can conclusively determine that Forward A* is on average a better algorithm in terms of expanded cells than Backwards A*. We can use this equation:
+\[
+\text{p-value} = P(K \ge k) = \sum_{x=k}^{n} \binom{n}{x}(0.5)^n
+\]
+to calculate the \(p\) value of mazes and then make our conclusion that Forward A* is better if \(p > 0.5\) by a significant amount and not just sampling noise.
+
+\end{document}
